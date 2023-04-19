@@ -9,15 +9,11 @@ import org.drg.enums.Currency;
 import org.drg.enums.TransactionType;
 
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
 public class ConverterUtil {
-	static final private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	static final private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 	public static Wallet convertToWallet(WalletDto walletDto) {
 		if (Objects.isNull(walletDto)) {
 			return null;

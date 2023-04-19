@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.drg.mapper.TransactionMapper">
+	<resultMap id="ResultMap" type="org.drg.entity.Transaction">
+		<id column="id" property="id"/>
+		<result column="wallet_id" property="walletId"/>
+		<result column="transaction_type" property="transactionType" typeHandler="org.drg.handler.TransactionTypeHandler"/>
+		<result column="amount" property="amount"/>
+		<result column="currency" property="currency" typeHandler="org.drg.handler.CurrencyTypeHandler"/>
+		<result column="comment" property="comment"/>
+		<result column="date" property="date"/>
+		<result column="flag" property="flag"/>
+	</resultMap>
+	<insert id="create" parameterType="org.drg.entity.Transaction" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO transactions (wallet_id, transaction_type, amount, currency <if test="comment != null">,
+		comment</if> <if test="flag != null">,
+		flag</if>)
+		VALUES (#{walletId},#{transactionType},#{amount},#{currency}<if test="comment != null">,#{comment}</if> <if test="flag != null">,#{flag}</if>)
+	</insert>
+</mapper>
