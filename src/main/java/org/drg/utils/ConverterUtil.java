@@ -1,13 +1,18 @@
 package org.drg.utils;
 
-import org.drg.dto.WalletDto;
-import org.drg.enums.Currency;
-import org.drg.entity.Wallet;
-
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-
 import org.apache.commons.lang3.EnumUtils;
+import org.drg.dto.TransactionDto;
+import org.drg.dto.WalletDto;
+import org.drg.entity.Transaction;
+import org.drg.entity.Wallet;
+import org.drg.enums.Currency;
+import org.drg.enums.TransactionType;
+
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 public class ConverterUtil {
 	static final private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -47,7 +52,56 @@ public class ConverterUtil {
 				.build();
 	}
 
+	public static Transaction convertToTransaction(TransactionDto transactionDto) {
+		if (Objects.isNull(transactionDto)) {
+			return null;
+		}
+		return Transaction.builder()
+				.id(transactionDto.getId())
+				.amount(transactionDto.getAmount())
+				.transactionType(EnumUtils.getEnumIgnoreCase(TransactionType.class, transactionDto.getTransactionType()))
+				.walletId(transactionDto.getWalletId())
+				.currency(EnumUtils.getEnumIgnoreCase(Currency.class, transactionDto.getCurrency()))
+				.time(dateFromString(transactionDto.getTime()))
+				.comment(transactionDto.getComment())
+				.build();
+	}
+
+	public static TransactionDto convertToTransactionDto(Transaction transaction) {
+		if (Objects.isNull(transaction)) {
+			return null;
+		}
+
+		return TransactionDto.builder()
+				.amount(transaction.getAmount())
+				.id(transaction.getId())
+				.walletId(transaction.getWalletId())
+				.transactionType(getStringFromEnum(transaction.getTransactionType()))
+				.currency(getStringFromEnum(transaction.getCurrency()))
+				.time(getStringFromDate(transaction.getTime()))
+				.comment(transaction.getComment())
+				.build();
+	}
+
 	private static String getStringFromEnum(Enum obj) {
 		return obj == null ? null : obj.name();
+	}
+
+	private static String getStringFromDate(Date date) {
+		if (Objects.isNull(date)) {
+			return null;
+		}
+		return date.toString();
+	}
+
+	private static Date dateFromString(String str) {
+		if (Objects.isNull(str)) {
+			return null;
+		}
+		try {
+			return new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss", Locale.ENGLISH).parse(str);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

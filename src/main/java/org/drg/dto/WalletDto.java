@@ -7,9 +7,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigInteger;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
+import java.math.BigInteger;
 
 @Builder
 @NoArgsConstructor
@@ -19,7 +19,7 @@ public class WalletDto {
 	@ApiModelProperty(notes = "Wallet ID", example = "33")
 	@JsonProperty("id")
 	private Integer id;
-	@ApiModelProperty(notes = "Balance", example = "100")
+	@ApiModelProperty(notes = "Balance in cents", example = "10000")
 	@JsonProperty("balance")
 	private BigInteger balance;
 	@ApiModelProperty(notes = "Currency", example = "EUR", required = true)
@@ -43,5 +43,6 @@ public class WalletDto {
 	@ApiModelProperty(notes = "Email address", example = "john.smith@example.com", required = true)
 	private String email;
 	@JsonProperty("flag")
+	@ApiModelProperty(notes = "Flag")
 	private String Flag;
 }

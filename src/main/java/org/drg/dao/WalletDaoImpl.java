@@ -22,4 +22,9 @@ public class WalletDaoImpl implements WalletDao {
 	public void create(Wallet wallet) {
 		walletMapper.create(wallet);
 	}
+
+	@Override
+	public void update(Wallet wallet) {
+		walletMapper.update(wallet);
+	}
 }

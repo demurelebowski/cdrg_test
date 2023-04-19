@@ -18,4 +18,18 @@
 		FROM wallets
 		WHERE id =#{id}
 	</select>
+	<insert id="create" parameterType="org.drg.entity.Wallet" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO wallets (currency, phone, first_name <if test="middleName != null">,
+		middle_name</if>, last_name, email)
+		VALUES (#{currency},#{phone},#{firstName},<if test="middleName != null">#{middleName},</if>#{lastName},#{email})
+	</insert>
+	<update id="update" parameterType="org.drg.entity.Wallet">
+		UPDATE
+		wallets
+		<set>
+			<if test="balance!=null">balance=#{balance},</if>
+			<if test="flag!=null">notes=#{flag}</if>
+		</set>
+		WHERE id=#{id}
+	</update>
 </mapper>

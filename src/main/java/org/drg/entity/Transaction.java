@@ -15,11 +15,12 @@ import java.util.Date;
 @AllArgsConstructor
 @Data
 public class Transaction {
-	private BigInteger id;
-	private BigInteger walletId;
+	private Integer id;
+	private Integer walletId;
 	private Date time;
 	private TransactionType transactionType;
 	private BigInteger amount;
 	private Currency currency;
 	private String comment;
+	private String flag;
 }

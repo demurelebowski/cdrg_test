@@ -6,4 +6,5 @@ public interface WalletDao {
 	Wallet readById(Integer id);
 
 	void create(Wallet wallet);
+	void update(Wallet wallet);
 }
