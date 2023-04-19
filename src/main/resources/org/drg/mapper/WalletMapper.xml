@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.drg.mapper.WalletMapper">
+	<resultMap id="ResultMap" type="org.drg.entity.Wallet">
+		<id column="id" property="id"/>
+		<result column="balance" property="balance"/>
+		<result column="currency" property="currency" typeHandler="org.drg.handler.CurrencyTypeHandler"/>
+		<result column="phone" property="phone"/>
+		<result column="first_name" property="firstName"/>
+		<result column="middle_name" property="middleName"/>
+		<result column="last_name" property="lastName"/>
+		<result column="email" property="email"/>
+		<result column="flag" property="flag"/>
+	</resultMap>
+	<select id="readById" parameterType="int" resultMap="ResultMap" resultType="org.drg.entity.Wallet">
+		SELECT id, balance, currency, phone, first_name, middle_name, last_name, email, flag
+		FROM wallets
+		WHERE id =#{id}
+	</select>
+</mapper>

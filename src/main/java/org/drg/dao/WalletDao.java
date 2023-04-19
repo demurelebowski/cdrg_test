@@ -4,4 +4,6 @@ import org.drg.entity.Wallet;
 
 public interface WalletDao {
 	Wallet readById(Integer id);
+
+	void create(Wallet wallet);
 }

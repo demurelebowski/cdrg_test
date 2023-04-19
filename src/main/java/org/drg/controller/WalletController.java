@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.ApiOperation;
 import org.drg.utils.ConverterUtil;
+
 @RestController
 @RequestMapping(value = "/wallet")
 @ApiOperation("Wallet API")
@@ -27,17 +27,17 @@ public class WalletController {
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved"),
 			@ApiResponse(code = 400, message = "Invalid parameter was provided") })
 	@GetMapping("/{walletId}")
-	public String readById(@PathVariable @ApiParam(value = "Wallet id", example = "9876") Long walletId) {
-		//Wallet wallet = walletService.readById(reservationId);
-		return "Yo"+ walletId;
+	public WalletDto readById(@PathVariable @ApiParam(value = "Wallet id", example = "9876") Integer walletId) {
+		Wallet wallet = walletService.readById(walletId);
+		return ConverterUtil.convertToWalletDto(wallet);
 	}
 
 	@ApiOperation(value = "Create a wallet", notes = "Returns a wallet with created id")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully created"), @ApiResponse(code = 400, message = "Invalid object was provided") })
-	@PostMapping("/")
+	@PostMapping("/create")
 	public WalletDto createWallet(@RequestBody WalletDto walletDto) {
-		Wallet reservation = ConverterUtil.convertToWallet(walletDto);
-		walletService.create(reservation);
-		return ConverterUtil.convertToWalletDto(reservation);
+		Wallet wallet = ConverterUtil.convertToWallet(walletDto);
+		walletService.create(wallet);
+		return ConverterUtil.convertToWalletDto(wallet);
 	}
 }

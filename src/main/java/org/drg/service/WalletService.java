@@ -1,5 +1,6 @@
 package org.drg.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.drg.dao.WalletDao;
 import org.drg.entity.Wallet;
 import org.drg.exceptions.ValidationException;
@@ -22,12 +23,34 @@ public class WalletService {
 		}
 	}
 
+	private void validateCreation(Wallet wallet) {
+		if (Objects.isNull(wallet)) {
+			throw new ValidationException("Object is null.");
+		}
+		if (StringUtils.isEmpty(wallet.getEmail())) {
+			throw new ValidationException("E-mail is empty.");
+		}
+		if (StringUtils.isEmpty(wallet.getPhone())) {
+			throw new ValidationException("Phone is empty.");
+		}
+		if (StringUtils.isEmpty(wallet.getFirstName())) {
+			throw new ValidationException("Firs name is empty.");
+		}
+		if (StringUtils.isEmpty(wallet.getLastName())) {
+			throw new ValidationException("Last name is empty.");
+		}
+		if (Objects.isNull(wallet.getCurrency())) {
+			throw new ValidationException("Currency is invalid.");
+		}
+	}
+
 	public Wallet readById(Integer id) {
 		validateId(id);
 		return walletDao.readById(id);
 	}
 
 	public void create(Wallet wallet) {
-
+		validateCreation(wallet);
+		walletDao.create(wallet);
 	}
 }
