@@ -32,4 +32,10 @@
 		</set>
 		WHERE id=#{id}
 	</update>
+	<select id="readByPhoneOrEmail" parameterType="org.drg.entity.Wallet" resultMap="ResultMap" resultType="org.drg.entity.Wallet">
+		SELECT id, balance, currency, phone, first_name, middle_name, last_name, email, flag
+		FROM wallets
+		WHERE (phone = #{phone} OR email =#{email})
+		AND currency=#{currency}
+	</select>
 </mapper>

@@ -1,6 +1,7 @@
 package org.drg.dao;
 
 import org.drg.entity.Wallet;
+import org.drg.enums.Currency;
 import org.drg.mapper.WalletMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -26,5 +27,10 @@ public class WalletDaoImpl implements WalletDao {
 	@Override
 	public void update(Wallet wallet) {
 		walletMapper.update(wallet);
+	}
+
+	@Override
+	public Wallet readByPhoneOrEmail(String phone, String email, Currency currency) {
+		return walletMapper.readByPhoneOrEmail(phone, email, currency);
 	}
 }

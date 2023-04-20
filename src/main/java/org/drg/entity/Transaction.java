@@ -8,6 +8,7 @@ import org.drg.enums.Currency;
 import org.drg.enums.TransactionType;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Builder
@@ -17,7 +18,7 @@ import java.util.Date;
 public class Transaction {
 	private Integer id;
 	private Integer walletId;
-	private Date time;
+	private LocalDateTime date;
 	private TransactionType transactionType;
 	private BigInteger amount;
 	private Currency currency;

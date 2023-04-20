@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -113,15 +115,36 @@ public class WalletTransactionService {
 
 	public void createWallet(Wallet wallet) {
 		validateCreation(wallet);
+		validateUniquePhoneEmail(wallet);
 		walletDao.create(wallet);
 	}
 
+	private void validateUniquePhoneEmail(Wallet wallet) {
+		Wallet walletInDb = walletDao.readByPhoneOrEmail(wallet.getPhone(), wallet.getEmail(), wallet.getCurrency());
+		if (!Objects.isNull(walletInDb)) {
+			throw new ValidationException("Wallet already exists.");
+		}
+	}
+
 	public void createTransaction(Transaction transaction) {
-		validateTransaction(transaction);
+		checkNumberOfTransactions(transaction.getWalletId());
+
+		/*validateTransaction(transaction);
 		transactionDao.create(transaction);
 		if (!Objects.isNull(transaction.getId())) {
 			updateWalletBalance(transaction);
-		}
+			checkNumberOfTransactions(transaction.getWalletId());
+		}*/
+	}
+
+	private void checkNumberOfTransactions(Integer walletId) {
+		LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+		LocalDateTime date = now.minusHours(1);
+
+		Integer numberOfTransactions = transactionDao.numberOfTransactions(walletId, date);
+
+		System.out.println(numberOfTransactions);
+		System.out.println(date);
 	}
 
 	private void updateWalletBalance(Transaction transaction) {

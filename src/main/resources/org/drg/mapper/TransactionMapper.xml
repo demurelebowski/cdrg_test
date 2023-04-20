@@ -9,7 +9,7 @@
 		<result column="amount" property="amount"/>
 		<result column="currency" property="currency" typeHandler="org.drg.handler.CurrencyTypeHandler"/>
 		<result column="comment" property="comment"/>
-		<result column="date" property="date"/>
+		<result column="date" jdbcType="TIMESTAMP" property="date" typeHandler="org.drg.handler.LocalDateTimeTypeHandler"/>
 		<result column="flag" property="flag"/>
 	</resultMap>
 	<insert id="create" parameterType="org.drg.entity.Transaction" useGeneratedKeys="true" keyProperty="id">
@@ -18,4 +18,10 @@
 		flag</if>)
 		VALUES (#{walletId},#{transactionType},#{amount},#{currency}<if test="comment != null">,#{comment}</if> <if test="flag != null">,#{flag}</if>)
 	</insert>
+	<select id="numberOfTransactions" parameterType="org.drg.entity.Transaction" resultType="int">
+		SELECT COUNT(*)
+		FROM transactions
+		WHERE date <![CDATA[ >= ]]>  #{date}
+		AND wallet_id =#{walletId}
+	</select>
 </mapper>

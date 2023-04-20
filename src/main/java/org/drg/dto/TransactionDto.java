@@ -20,9 +20,9 @@ public class TransactionDto {
 	@ApiModelProperty(notes = "Wallet ID", example = "2", required = true)
 	@JsonProperty("wallet_id")
 	private Integer walletId;
-	@JsonProperty("time")
-	@ApiModelProperty(notes = "Date when record was created", example = "2022-12-03 16:26:39")
-	private String time;
+	@JsonProperty("date")
+	@ApiModelProperty(notes = "Date and time when record was created", example = "2022-12-03 16:26:39")
+	private String date;
 	@JsonProperty("transaction_type")
 	@ApiModelProperty(notes = "Transaction type", example = "WITHDRAWAL or DEPOSIT", required = true)
 	private String transactionType;

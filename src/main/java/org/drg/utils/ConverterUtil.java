@@ -7,13 +7,18 @@ import org.drg.entity.Transaction;
 import org.drg.entity.Wallet;
 import org.drg.enums.Currency;
 import org.drg.enums.TransactionType;
+import org.drg.exceptions.ValidationException;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
 public class ConverterUtil {
+	static final private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 	public static Wallet convertToWallet(WalletDto walletDto) {
 		if (Objects.isNull(walletDto)) {
 			return null;
@@ -58,7 +63,7 @@ public class ConverterUtil {
 				.transactionType(EnumUtils.getEnumIgnoreCase(TransactionType.class, transactionDto.getTransactionType()))
 				.walletId(transactionDto.getWalletId())
 				.currency(EnumUtils.getEnumIgnoreCase(Currency.class, transactionDto.getCurrency()))
-				.time(dateFromString(transactionDto.getTime()))
+				.date(localDateTimeFromString(transactionDto.getDate()))
 				.comment(transactionDto.getComment())
 				.build();
 	}
@@ -74,7 +79,7 @@ public class ConverterUtil {
 				.walletId(transaction.getWalletId())
 				.transactionType(getStringFromEnum(transaction.getTransactionType()))
 				.currency(getStringFromEnum(transaction.getCurrency()))
-				.time(getStringFromDate(transaction.getTime()))
+				.date(stringFromLocalDateTime(transaction.getDate()))
 				.comment(transaction.getComment())
 				.build();
 	}
@@ -88,6 +93,24 @@ public class ConverterUtil {
 			return null;
 		}
 		return date.toString();
+	}
+
+	public static LocalDateTime localDateTimeFromString(String str) {
+		if (Objects.isNull(str)) {
+			return null;
+		}
+		try {
+			return LocalDateTime.parse(str, dateTimeFormatter);
+		} catch (Exception e) {
+			throw new ValidationException("Invalid datetime format.");
+		}
+	}
+
+	private static String stringFromLocalDateTime(LocalDateTime localDateTime) {
+		if (Objects.isNull(localDateTime)) {
+			return null;
+		}
+		return localDateTime.format(dateTimeFormatter);
 	}
 
 	private static Date dateFromString(String str) {
