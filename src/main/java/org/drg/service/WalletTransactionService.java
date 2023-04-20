@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 @Service
@@ -140,11 +142,15 @@ public class WalletTransactionService {
 	private void checkNumberOfTransactions(Integer walletId) {
 		LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
 		LocalDateTime date = now.minusHours(1);
+		LocalDateTime beginningOfDay = now.with(LocalTime.MIN);
 
 		Integer numberOfTransactions = transactionDao.numberOfTransactions(walletId, date);
+		BigInteger sumAmountAtDate = transactionDao.sumAmountAtDate(walletId,  beginningOfDay);
 
 		System.out.println(numberOfTransactions);
 		System.out.println(date);
+		System.out.println(sumAmountAtDate);
+		System.out.println(beginningOfDay);
 	}
 
 	private void updateWalletBalance(Transaction transaction) {

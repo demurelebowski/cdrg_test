@@ -24,4 +24,10 @@
 		WHERE date <![CDATA[ >= ]]>  #{date}
 		AND wallet_id =#{walletId}
 	</select>
+	<select id="sumAmountAtDate" parameterType="org.drg.entity.Transaction" resultType="BigInteger">
+		SELECT SUM(amount)
+		FROM transactions
+		WHERE date <![CDATA[ >= ]]>  #{date}
+		AND wallet_id =#{walletId}
+	</select>
 </mapper>
