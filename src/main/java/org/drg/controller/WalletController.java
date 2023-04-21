@@ -51,4 +51,11 @@ public class WalletController {
 		walletService.createTransaction(transaction);
 		return ConverterUtil.convertToTransactionDto(transaction);
 	}
+
+	@ApiOperation(value = "Unblock a wallet")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully unblocked"), @ApiResponse(code = 400, message = "Invalid object was provided") })
+	@PostMapping("/reset/{walletId}")
+	public Boolean resetWalletBlock(@PathVariable @ApiParam(value = "Wallet id", example = "9876") Integer walletId) {
+		return walletService.resetWalletBlock(walletId);
+	}
 }

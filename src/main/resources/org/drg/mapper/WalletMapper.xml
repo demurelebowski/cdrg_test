@@ -11,7 +11,7 @@
 		<result column="middle_name" property="middleName"/>
 		<result column="last_name" property="lastName"/>
 		<result column="email" property="email"/>
-		<result column="flag" property="flag"/>
+		<result column="flag" property="flag" typeHandler="org.drg.handler.WalletFlagTypeHandler"/>
 	</resultMap>
 	<select id="readById" parameterType="int" resultMap="ResultMap" resultType="org.drg.entity.Wallet">
 		SELECT id, balance, currency, phone, first_name, middle_name, last_name, email, flag
@@ -28,7 +28,7 @@
 		wallets
 		<set>
 			<if test="balance!=null">balance=#{balance},</if>
-			<if test="flag!=null">notes=#{flag}</if>
+			<if test="flag!=null">flag=#{flag}</if>
 		</set>
 		WHERE id=#{id}
 	</update>

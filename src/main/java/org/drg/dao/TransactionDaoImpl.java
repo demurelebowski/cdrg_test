@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigInteger;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Repository
 public class TransactionDaoImpl implements TransactionDao {
@@ -23,12 +21,12 @@ public class TransactionDaoImpl implements TransactionDao {
 	}
 
 	@Override
-	public Integer numberOfTransactions(Integer walletId, LocalDateTime date) {
+	public Integer numberOfTransactions(Integer walletId, String date) {
 		return transactionMapper.numberOfTransactions(walletId, date);
 	}
 
 	@Override
-	public BigInteger sumAmountAtDate(Integer walletId, LocalDateTime date) {
+	public BigInteger sumAmountAtDate(Integer walletId, String date) {
 		return transactionMapper.sumAmountAtDate(walletId, date);
 	}
 }

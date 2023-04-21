@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.drg.enums.Currency;
+import org.drg.enums.WalletFlag;
 
 import java.math.BigInteger;
 
@@ -21,5 +22,5 @@ public class Wallet {
 	private String middleName;
 	private String lastName;
 	private String email;
-	private String flag;
+	private WalletFlag flag;
 }

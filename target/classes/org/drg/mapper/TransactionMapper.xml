@@ -10,24 +10,30 @@
 		<result column="currency" property="currency" typeHandler="org.drg.handler.CurrencyTypeHandler"/>
 		<result column="comment" property="comment"/>
 		<result column="date" jdbcType="TIMESTAMP" property="date" typeHandler="org.drg.handler.LocalDateTimeTypeHandler"/>
-		<result column="flag" property="flag"/>
+		<result column="flag" property="flag" typeHandler="org.drg.handler.TransactionFlagTypeHandler"/>
 	</resultMap>
 	<insert id="create" parameterType="org.drg.entity.Transaction" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO transactions (wallet_id, transaction_type, amount, currency <if test="comment != null">,
-		comment</if> <if test="flag != null">,
-		flag</if>)
-		VALUES (#{walletId},#{transactionType},#{amount},#{currency}<if test="comment != null">,#{comment}</if> <if test="flag != null">,#{flag}</if>)
+		INSERT INTO transactions (wallet_id, transaction_type, amount, currency
+		<if test="comment != null">,
+			comment
+		</if>
+		<if test="flag != null">,
+			flag</if>)
+		VALUES (#{walletId},#{transactionType},#{amount},#{currency}
+		<if test="comment != null">,#{comment}</if>
+		<if test="flag != null">,#{flag}</if>)
 	</insert>
-	<select id="numberOfTransactions" parameterType="org.drg.entity.Transaction" resultType="int">
+	<select id="numberOfTransactions" resultType="int">
 		SELECT COUNT(*)
 		FROM transactions
 		WHERE date <![CDATA[ >= ]]>  #{date}
 		AND wallet_id =#{walletId}
 	</select>
-	<select id="sumAmountAtDate" parameterType="org.drg.entity.Transaction" resultType="BigInteger">
+	<select id="sumAmountAtDate" resultType="BigInteger">
 		SELECT SUM(amount)
 		FROM transactions
 		WHERE date <![CDATA[ >= ]]>  #{date}
 		AND wallet_id =#{walletId}
+		AND transaction_type = 'WITHDRAWAL'
 	</select>
 </mapper>

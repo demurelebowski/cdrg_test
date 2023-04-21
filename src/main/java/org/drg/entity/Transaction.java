@@ -5,11 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.drg.enums.Currency;
+import org.drg.enums.TransactionFlag;
 import org.drg.enums.TransactionType;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Builder
 @NoArgsConstructor
@@ -23,5 +23,5 @@ public class Transaction {
 	private BigInteger amount;
 	private Currency currency;
 	private String comment;
-	private String flag;
+	private TransactionFlag flag;
 }

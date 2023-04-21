@@ -3,10 +3,16 @@ package org.drg.service;
 import org.apache.commons.lang3.StringUtils;
 import org.drg.dao.TransactionDao;
 import org.drg.dao.WalletDao;
+import org.drg.dao.WalletEventDao;
 import org.drg.entity.Transaction;
 import org.drg.entity.Wallet;
+import org.drg.entity.WalletEvent;
+import org.drg.enums.TransactionFlag;
 import org.drg.enums.TransactionType;
+import org.drg.enums.WalletEventType;
+import org.drg.enums.WalletFlag;
 import org.drg.exceptions.ValidationException;
+import org.drg.utils.ConverterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,14 +28,23 @@ import java.util.Objects;
 public class WalletTransactionService {
 	private final WalletDao walletDao;
 	private final TransactionDao transactionDao;
+	private final WalletEventDao walletEventDao;
 	@Value("${single_transaction_limit}")
 	private BigInteger singleTransactionLimit;
 	@Value("${suspicious_transactions}")
 	private BigInteger suspiciousTransaction;
+	@Value("${daily_withdrawal_limit}")
+	private BigInteger dailyWithdrawalLimit;
+	@Value("${number_of_transactions_suspicious}")
+	private Integer numberOfTransactionsSuspicious;
+	@Value("${number_of_transactions_block}")
+	private Integer numberOfTransactionsBlock;
+	private final Clock systemUTC = Clock.systemUTC();
 
-	public WalletTransactionService(@Autowired WalletDao walletDao, @Autowired TransactionDao transactionDao) {
+	public WalletTransactionService(@Autowired WalletDao walletDao, @Autowired TransactionDao transactionDao, @Autowired WalletEventDao walletEventDao) {
 		this.walletDao = walletDao;
 		this.transactionDao = transactionDao;
+		this.walletEventDao = walletEventDao;
 	}
 
 	private void validateId(Integer id) {
@@ -66,7 +81,8 @@ public class WalletTransactionService {
 
 		validateId(transaction.getWalletId());
 
-		if (null == readById(transaction.getWalletId())) {
+		Wallet wallet = readById(transaction.getWalletId());
+		if (null == wallet) {
 			throw new ValidationException("Wallet doesn't exist.");
 		}
 		if (Objects.isNull(transaction.getCurrency())) {
@@ -82,7 +98,33 @@ public class WalletTransactionService {
 
 		validateAvailableBalance(transaction);
 		validateSingleTransactionLimit(transaction.getAmount());
+		validateDailyWithdrawalLimit(transaction);
 		flagForSuspiciousTransaction(transaction);
+		checkForBlockedWallet(wallet.getId());
+	}
+
+	private void checkForBlockedWallet(Integer walletId) {
+		WalletEvent walletEvent = getLastEventToday(walletId);
+		if (walletEvent != null && WalletEventType.BLOCKED.equals(walletEvent.getWalletEventType())) {
+			throw new ValidationException("Wallet is blocked.");
+		}
+
+	}
+
+	private void validateDailyWithdrawalLimit(Transaction transaction) {
+		if (transaction.getTransactionType()
+				.equals(TransactionType.WITHDRAWAL)) {
+			LocalDateTime beginningOfDay = LocalDateTime.now(systemUTC)
+					.with(LocalTime.MIN);
+
+			BigInteger sumAmountAtDate = transactionDao.sumAmountAtDate(transaction.getWalletId(), ConverterUtil.stringFromLocalDateTime(beginningOfDay));
+
+			if (sumAmountAtDate != null && transaction.getAmount()
+					.add(sumAmountAtDate)
+					.compareTo(dailyWithdrawalLimit) == 1) {
+				throw new ValidationException("Daily withdrawal limit is " + dailyWithdrawalLimit.divide(BigInteger.valueOf(100)));
+			}
+		}
 	}
 
 	private void validateAvailableBalance(Transaction transaction) {
@@ -100,7 +142,7 @@ public class WalletTransactionService {
 	private void flagForSuspiciousTransaction(Transaction transaction) {
 		if (transaction.getAmount()
 				.compareTo(suspiciousTransaction) == 1) {
-			transaction.setFlag("Suspicious");
+			transaction.setFlag(TransactionFlag.SUSPICIOUS);
 		}
 	}
 
@@ -129,32 +171,62 @@ public class WalletTransactionService {
 	}
 
 	public void createTransaction(Transaction transaction) {
-		checkNumberOfTransactions(transaction.getWalletId());
-
-		/*validateTransaction(transaction);
+		validateTransaction(transaction);
 		transactionDao.create(transaction);
 		if (!Objects.isNull(transaction.getId())) {
-			updateWalletBalance(transaction);
-			checkNumberOfTransactions(transaction.getWalletId());
-		}*/
+			Wallet wallet = readById(transaction.getWalletId());
+			updateWalletBalance(transaction, wallet);
+			checkNumberOfTransactionsForSuspicious(wallet);
+			checkNumberOfTransactionsForBlock(wallet);
+		}
 	}
 
-	private void checkNumberOfTransactions(Integer walletId) {
-		LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
-		LocalDateTime date = now.minusHours(1);
-		LocalDateTime beginningOfDay = now.with(LocalTime.MIN);
+	private void checkNumberOfTransactionsForSuspicious(Wallet wallet) {
+		LocalDateTime date = LocalDateTime.now(systemUTC)
+				.minusHours(1);
 
-		Integer numberOfTransactions = transactionDao.numberOfTransactions(walletId, date);
-		BigInteger sumAmountAtDate = transactionDao.sumAmountAtDate(walletId,  beginningOfDay);
+		Integer numberOfTransactions = transactionDao.numberOfTransactions(wallet.getId(), ConverterUtil.stringFromLocalDateTime(date));
 
-		System.out.println(numberOfTransactions);
-		System.out.println(date);
-		System.out.println(sumAmountAtDate);
-		System.out.println(beginningOfDay);
+		if (!WalletFlag.SUSPICIOUS.equals(wallet.getFlag()) && numberOfTransactions != null && numberOfTransactions > numberOfTransactionsSuspicious) {
+			wallet.setFlag(WalletFlag.SUSPICIOUS);
+			walletDao.update(wallet);
+		}
 	}
 
-	private void updateWalletBalance(Transaction transaction) {
-		Wallet wallet = readById(transaction.getWalletId());
+	private void checkNumberOfTransactionsForBlock(Wallet wallet) {
+		LocalDateTime date = getStartDateForBlock(wallet.getId());
+
+		Integer numberOfTransactions = transactionDao.numberOfTransactions(wallet.getId(), ConverterUtil.stringFromLocalDateTime(date));
+
+		if (numberOfTransactions != null && numberOfTransactions > numberOfTransactionsBlock) {
+			walletEventDao.create(WalletEvent.builder()
+					.walletEventType(WalletEventType.BLOCKED)
+					.walletId(wallet.getId())
+					.build());
+		}
+	}
+
+	private LocalDateTime getStartDateForBlock(Integer walletId) {
+		WalletEvent walletEvent = getLastEventToday(walletId);
+
+		if (walletEvent != null && WalletEventType.UNBLOCKED.equals(walletEvent.getWalletEventType())) {
+			return walletEvent.getDate();
+		}
+		LocalDateTime beginningOfDay = LocalDate.now(systemUTC)
+				.atStartOfDay();
+		return beginningOfDay;
+	}
+
+	private WalletEvent getLastEventToday(Integer walletId) {
+		LocalDateTime beginningOfDay = LocalDate.now(systemUTC)
+				.atStartOfDay();
+		LocalDateTime endOfDay = LocalDate.now(systemUTC)
+				.atTime(LocalTime.MAX);
+		return walletEventDao.readLastEventByDate(walletId, ConverterUtil.stringFromLocalDateTime(beginningOfDay),
+				ConverterUtil.stringFromLocalDateTime(endOfDay));
+	}
+
+	private void updateWalletBalance(Transaction transaction, Wallet wallet) {
 		BigInteger balance = wallet.getBalance();
 		if (transaction.getTransactionType()
 				.equals(TransactionType.DEPOSIT)) {
@@ -165,4 +237,19 @@ public class WalletTransactionService {
 		wallet.setBalance(balance);
 		walletDao.update(wallet);
 	}
+
+	public Boolean resetWalletBlock(Integer walletId) {
+		validateId(walletId);
+		WalletEvent walletEvent = getLastEventToday(walletId);
+
+		if (walletEvent != null && WalletEventType.BLOCKED.equals(walletEvent.getWalletEventType())) {
+			walletEventDao.create(WalletEvent.builder()
+					.walletEventType(WalletEventType.UNBLOCKED)
+					.walletId(walletId)
+					.build());
+			return true;
+		}
+		return false;
+	}
+
 }

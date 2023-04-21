@@ -32,7 +32,6 @@ public class ConverterUtil {
 				.firstName(walletDto.getFirstName())
 				.middleName(walletDto.getMiddleName())
 				.lastName(walletDto.getLastName())
-				.flag(walletDto.getFlag())
 				.build();
 	}
 
@@ -49,7 +48,6 @@ public class ConverterUtil {
 				.firstName(wallet.getFirstName())
 				.middleName(wallet.getMiddleName())
 				.lastName(wallet.getLastName())
-				.Flag(wallet.getFlag())
 				.build();
 	}
 
@@ -106,7 +104,7 @@ public class ConverterUtil {
 		}
 	}
 
-	private static String stringFromLocalDateTime(LocalDateTime localDateTime) {
+	public static String stringFromLocalDateTime(LocalDateTime localDateTime) {
 		if (Objects.isNull(localDateTime)) {
 			return null;
 		}
