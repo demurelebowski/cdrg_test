@@ -212,9 +212,9 @@ public class WalletTransactionService {
 		if (walletEvent != null && WalletEventType.UNBLOCKED.equals(walletEvent.getWalletEventType())) {
 			return walletEvent.getDate();
 		}
-		LocalDateTime beginningOfDay = LocalDate.now(systemUTC)
+
+		return LocalDate.now(systemUTC)
 				.atStartOfDay();
-		return beginningOfDay;
 	}
 
 	private WalletEvent getLastEventToday(Integer walletId) {

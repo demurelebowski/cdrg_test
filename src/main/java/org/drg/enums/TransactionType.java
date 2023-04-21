@@ -3,22 +3,14 @@ package org.drg.enums;
 import java.util.Arrays;
 
 public enum TransactionType {
-	WITHDRAWAL("WITHDRAWAL"), DEPOSIT("DEPOSIT");
-	private final String value;
-
-	TransactionType(String value) {
-		this.value = value;
-	}
+	WITHDRAWAL, DEPOSIT;
 
 	public static TransactionType getByString(String str) {
 		return Arrays.stream(TransactionType.values())
-				.filter(e -> e.getValue()
+				.filter(e -> e.name()
 						.equals(str))
 				.findAny()
 				.orElse(null);
 	}
 
-	public String getValue() {
-		return value;
-	}
 }

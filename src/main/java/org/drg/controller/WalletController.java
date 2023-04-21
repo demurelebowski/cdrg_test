@@ -10,7 +10,6 @@ import org.drg.entity.Transaction;
 import org.drg.entity.Wallet;
 import org.drg.service.WalletTransactionService;
 import org.drg.utils.ConverterUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,8 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/wallet")
 @ApiOperation("Wallet API")
 public class WalletController {
-	@Autowired
-	public WalletTransactionService walletService;
+	public final WalletTransactionService walletService;
+
+	public WalletController(WalletTransactionService walletService) {
+		this.walletService = walletService;
+	}
 
 	@ApiOperation(value = "Get a wallet by id", notes = "Returns wallet as per the id")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully retrieved"),
