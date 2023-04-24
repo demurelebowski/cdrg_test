@@ -10,6 +10,8 @@ Navigate to the project directory and run mvn clean install to build the project
 Create a Wallet
 To create a wallet, send a POST request to the /wallets endpoint with the following JSON payload:
 
+POST localhost:8080/wallet/create
+
 json
 
 {
@@ -27,11 +29,12 @@ The balance, currency, phone, first_name, last_name, and email fields are requir
 Retrieve a Wallet
 To retrieve a wallet by ID, send a GET request to the /wallets/{id} endpoint, where {id} is the ID of the wallet you want to retrieve.
 
-GET http://localhost:8080/wallets/1
+GET http://localhost:8080/wallets/{wallet_id}
 
 Perform a Transaction
 To perform a transaction (either a withdrawal or a deposit), send a POST request to the wallet/transactions endpoint with the following JSON payload:
 
+POST localhost:8080/wallet/transaction
 json
 
 {
@@ -43,8 +46,7 @@ json
 }
 The wallet_id, transaction_type, amount in cents, and currency fields are required.
 
-Example request using curl:
+Reset wallet blocking.
 
-sh
-Copy code
-curl -X POST -H "Content-Type: application/json" -d '{"wallet_id": 1, "date": "2022-12-03 16:26:39", "transaction_type": "WITHDRAWAL", "amount": 1000, "currency": "EUR", "comment": "Some comment"}' http://localhost:8080/transactions
+Resets wallet blocking.
+POST localhost:8080/wallet/reset/{wallet_id}
